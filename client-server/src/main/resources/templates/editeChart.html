@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<bean id="templateEngine" class="org.thymeleaf.spring5.SpringTemplateEngine">
+    <property name="additionalDialects">
+        <set>
+            <bean class="org.thymeleaf.extras.springsecurity5.dialect.SpringSecurityDialect"/>
+        </set>
+    </property>
+</bean>
+<head>
+    <title>Charts</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!--    <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" th:href="@{/webjars/bootstrap/css/bootstrap.css}" />-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<!--    <script type="text/javascript" th:src="@{/js/addInputField.js}"></script>-->
+    <script type="text/javascript" th:src="@{/js/removeRow.js}"></script>
+    <link th:href="@{/styles/style.css}" rel="stylesheet" />
+</head>
+<body>
+<div th:fragment="header">
+    <nav class="navbar navbar-default">
+        <div class="container">
+            <div class="container-fluid">
+                <div th:text="${#authentication.name}" class="navbar-collapse collapse" id="navbar">
+                </div>
+            </div>
+        </div>
+    </nav>
+</div>
+<div sec:authorize="isAuthenticated()" class="container">
+
+    <form class="needs-validation" action="#" th:action="@{/editeChart}" th:object="${data}" method="post" novalidate>
+
+
+
+        <div class="container">
+            <div class="row clearfix">
+                <div class="col-md-12 table-responsive">
+                    <table class="table table-bordered table-hover table-sortable" id="modgrad_table">
+                        <thead>
+                        <tr >
+                            <th class="text-center">
+                                Module
+                            </th>
+                            <th class="text-center">
+                                Grade
+                            </th>
+                            <th class="text-center">
+                                Label
+                            </th>
+                            <th class="text-center">
+                                Credits
+                            </th>
+                            <th class="text-center" style="border-top: 1px solid #ffffff; border-right: 1px solid #ffffff;">
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <span th:each="d, itemStat : *{dataDtoList}">
+
+                            <div hidden>
+                                   <input type="text" th:field="*{dataDtoList[__${itemStat.index}__].chartId}">
+                            </div>
+                            <div hidden>
+                                   <input type="text" th:field="*{dataDtoList[__${itemStat.index}__].dataId}">
+                            </div>
+                            <div hidden>
+                                   <input type="text" th:field="*{dataDtoList[__${itemStat.index}__].studentId}">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="header">Semester<span>:</span> </label>
+                                <input class="form-control" type="text" id="semesterField" th:field="*{dataDtoList[__${itemStat.index}__].semester}" required/>
+                                <div class="invalid-feedback">
+                                    Please add a semester.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="header">Semester Year<span>:</span> </label>
+                                <input class="form-control" type="number" id="semesterYearField" th:field="*{dataDtoList[__${itemStat.index}__].semesterYear}" minlength="4" th:maxlength="4" required/>
+                                <div class="invalid-feedback">
+                                    Please add a semester.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+
+                        <tr th:each="t, i : *{dataDtoList[__${itemStat.index}__].grades}">
+                            <td data-name="module">
+                                <input class="form-control" th:field="*{dataDtoList[__${itemStat.index}__].grades[__${i.index}__].module}" placeholder='Module' required/>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                                <div class="invalid-feedback">
+                                    Please add a module.
+                                </div>
+                            </td>
+                            <td data-name="grade">
+                                <input class="form-control" type="number" th:field="*{dataDtoList[__${itemStat.index}__].grades[__${i.index}__].grade}" placeholder='Grade' th:max="5" th:min="1" required/>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                                <div class="invalid-feedback">
+                                    Please add a grade fom 1 to 5.
+                                </div>
+                            </td>
+                            <td data-name="label">
+                                <input class="form-control" type="text" th:field="*{dataDtoList[__${itemStat.index}__].grades[__${i.index}__].label}" placeholder="Label"/><!--                                <input class="form-control" type="text" th:field="${d.transcript.grades[__${itemStat.index}__].label}" placeholder="Label"/>-->
+                            </td>
+                            <td data-name="credits">
+                                <input class="form-control" type="number" th:field="*{dataDtoList[__${itemStat.index}__].grades[__${i.index}__].credits}" placeholder="Credits" required/>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                                <div class="invalid-feedback">
+                                    Please add the credits of the module.
+                                </div>
+                            </td>
+
+                            <td data-name="del">
+                                <button name="del0" id="deleteRow" class='btn btn-danger glyphicon glyphicon-remove row-remove'><span aria-hidden="true">x</span></button>
+                            </td>
+                        </tr>
+                        </span>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-info">Submit</button>
+
+    </form>
+
+</div>
+<script type="text/javascript" th:src="@{/js/removRow.js}"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.5/dist/umd/popper.min.js" integrity="sha384-Xe+8cL9oJa6tN/veChSP7q+mnSPaj5Bcu9mPX5F5xIGE0DVittaqT5lorf0EI7Vk" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.min.js" integrity="sha384-kjU+l4N0Yf4ZOJErLsIcvOU2qSb74wXpOhqTvwVx3OElZRweTnQ6d31fXEoRD1Jy" crossorigin="anonymous"></script>
+<script src="/webjars/jquery/jquery.min.js" th:src="@{/webjars/jquery/jquery.min.js}"></script>
+<script src="/webjars/bootstrap/js/bootstrap.min.js" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+</body>
+</html>

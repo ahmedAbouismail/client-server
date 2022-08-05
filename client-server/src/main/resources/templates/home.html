@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<bean id="templateEngine" class="org.thymeleaf.spring5.SpringTemplateEngine">
+    <property name="additionalDialects">
+        <set>
+            <bean class="org.thymeleaf.extras.springsecurity5.dialect.SpringSecurityDialect"/>
+        </set>
+    </property>
+</bean>
+<head>
+    <title>Charts</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" th:href="@{/webjars/bootstrap/css/bootstrap.css}" />
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript" th:inline="javascript">
+
+        google.charts.load('current', {'packages':['corechart']});
+
+        google.charts.setOnLoadCallback(drawChart);
+            function drawChart() {
+                for (const chartModel of [[${charts}]]){
+
+                    if (chartModel.data.length === 1) {
+                        chartModel.data.push(["SS 2022", 1]);
+                        chartModel.data.push(["SS 2023", 3.5]);
+
+                        var data = new google.visualization.arrayToDataTable(chartModel.data);
+                    } else {
+                        var data = new google.visualization.arrayToDataTable(chartModel.data);
+                    }
+
+
+                    var options = {
+                        title: chartModel.chartLabel,
+                        curveType: '',
+                        legend: {position: 'bottom'},
+                        vAxis: {
+                            title: '',
+                            direction: '',
+                            viewWindow:{
+                                min: '',
+                                max: ''
+                            },
+                            ticks:''
+                        },
+                        hAxis:{
+                            title: '',
+                            direction: ''
+                        },
+                        axis: {
+                            x:{
+                                0: {
+                                    side: ''
+                                }
+                            }
+                        }
+                    };
+                    if (chartModel.chartLabel === "GRADES" && chartModel.chartType === "LINE"){
+                        options.curveType = 'function'
+                        options.vAxis.title = 'Average';
+                        options.vAxis.direction = '-1';
+                        options.axis.x["0"].side = 'bottom';
+                        options.vAxis.viewWindow.max = 5;
+                        options.vAxis.viewWindow.min = 1;
+                        options.vAxis.ticks = [1,2,3,4,5];
+                    }else if(chartModel.chartLabel === "GRADES" && chartModel.chartType === "BAR"){
+                        options.curveType = ''
+                        options.vAxis.title = 'Average';
+                        options.vAxis.direction = '';
+                        options.hAxis.direction = '';
+                        options.vAxis.viewWindow.max = 5;
+                        options.vAxis.viewWindow.min = 1;
+                        options.vAxis.ticks = [1,2,3,4,5];
+                    }else if(chartModel.chartLabel === "MODULES" && chartModel.chartType === "LINE"){
+                        options.curveType = 'function'
+                        options.vAxis.title = 'Modules';
+                        options.vAxis.direction = '-1';
+                        options.axis.x["0"].side = 'bottom';
+                    }else if(chartModel.chartLabel === "MODULES" && chartModel.chartType === "BAR"){
+                        options.curveType = ''
+                        options.vAxis.title = 'Modules';
+                        options.vAxis.direction = '';
+                    }
+
+                    if (chartModel.chartType === "LINE"){
+                        var chart = new google.visualization.LineChart(document.getElementById(chartModel.chartId));
+                    }else if (chartModel.chartType === "BAR"){
+                        var chart = new google.visualization.ColumnChart(document.getElementById(chartModel.chartId));
+                    }
+                    chart.draw(data, options);
+                }
+
+            }
+
+
+    </script>
+</head>
+<body>
+<div th:fragment="header">
+    <nav class="navbar navbar-default">
+        <div class="container">
+            <div class="container-fluid">
+                <div th:text="${#authentication.name}" class="navbar-collapse collapse" id="navbar">
+                </div>
+            </div>
+        </div>
+    </nav>
+</div>
+<div sec:authorize="isAuthenticated()" class="container">
+    <span sec:authentication="name"></span>
+    <h1>Student Charts</h1>
+    <div th:text="${noChart}"></div>
+
+    <div th:each="chartModel, iSat: ${charts}">
+        <div id="chart-components">
+            <div th:id="${chartModel.chartId}"></div>
+            <div>
+                <a th:href="@{/addData(chartId=${chartModel.chartId})}" class="btn btn-lg btn-primary">Add Data</a>
+                <a href="/editeChart" th:href="@{/editeChart(chartId=${chartModel.chartId})}" class="btn btn-lg btn-primary">Edite</a>
+                <a href="/deleteChart" th:href="@{/deleteChart(chartId=${chartModel.chartId})}" class="btn btn-lg btn-primary">Delete</a>
+            </div>
+        </div>
+
+    </div>
+
+    <p>
+        <a href="/create" th:href="@{/create}" class="btn btn-lg btn-primary">New Chart</a>
+    </p>
+</div>
+<script src="/webjars/jquery/jquery.min.js" th:src="@{/webjars/jquery/jquery.min.js}"></script>
+<script src="/webjars/bootstrap/js/bootstrap.min.js" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+</body>
+</html>

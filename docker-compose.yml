@@ -1,0 +1,15 @@
+version: "2.1"
+
+services:
+  client:
+    build: client-server
+    mem_limit: 512m
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+networks:
+  default:
+    external:
+      name: htw-berlin-project

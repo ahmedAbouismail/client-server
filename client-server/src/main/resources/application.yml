@@ -1,0 +1,63 @@
+server:
+  port: 8080
+
+logging:
+  level:
+    root: INFO
+    htw.berlin: DEBUG
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+    org.springframework.security.oauth2: INFO
+#    org.springframework.boot.autoconfigure: DEBUG
+app:
+  auth-server: localhost
+
+spring:
+  thymeleaf:
+    cache: false
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
+  security:
+    oauth2:
+      client:
+        registration:
+          chart-client-oidc:
+            provider: spring
+            client-id: chart-client
+            client-secret: secret
+            authorization-grant-type: authorization_code
+            redirect-uri: "http://127.0.0.1:8080/login/oauth2/code/{registrationId}"
+            scope: openid
+            client-name: chart-client-oidc
+          chart-client-authorization-code:
+            provider: spring
+            client-id: chart-client
+            client-secret: secret
+            authorization-grant-type: authorization_code
+            redirect-uri: "http://127.0.0.1:8080/authorized"
+            scope: chart.read,chart.write
+            client-name: chart-client-authorization-code
+          chart-client-client-credentials:
+            provider: spring
+            client-id: chart-client
+            client-secret: secret
+            authorization-grant-type: client_credentials
+            scope: chart.read,chart.write
+            client-name: chart-client-client-credentials
+        provider:
+          spring:
+            issuer-uri: http://${app.auth-server}:9000
+#            authorization-uri: http://localhost:9000/oauth2/authorize
+#            token-uri: http://localhost:9000/oauth2/token
+#            user-info-uri: http://localhost:9000/userinfo
+#            authorization-uri: https://your-subdomain.oktapreview.com/oauth2/v1/authorize
+#            token-uri: https://your-subdomain.oktapreview.com/oauth2/v1/token
+#            user-info-uri: https://your-subdomain.oktapreview.com/oauth2/v1/userinfo
+
+---
+spring.config.activate.on-profile: docker
+
+app:
+  auth-server: auth-server
